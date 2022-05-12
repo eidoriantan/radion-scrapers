@@ -1,9 +1,10 @@
 {
+  "maximum": 25,
   "rewardInterval": {
     "minute": "*",
     "hour": "*/1",
     "dayOfMonth": "*",
     "month": "*",
     "dayOfWeek": "*"
-  },
+  }
 }
