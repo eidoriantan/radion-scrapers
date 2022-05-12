@@ -1,0 +1,9 @@
+{
+  "rewardInterval": {
+    "minute": "*",
+    "hour": "*/1",
+    "dayOfMonth": "*",
+    "month": "*",
+    "dayOfWeek": "*"
+  },
+}

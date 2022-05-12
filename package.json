@@ -1,0 +1,41 @@
+{
+  "name": "radion-scrapers",
+  "version": "1.0.0",
+  "description": "Daemon that scrapes websites to be added to RADION fingerprint database",
+  "keywords": [
+    "radion",
+    "fingerprint",
+    "database"
+  ],
+  "private": true,
+  "homepage": "https://github.com/eidoriantan/radion-scrapers#readme",
+  "bugs": "https://github.com/eidoriantan/radion-scrapers/issues",
+  "license": "UNLICENSED",
+  "author": {
+    "name": "Adriane Justine Tan",
+    "email": "eidoriantan@gmail.com",
+    "url": "https://eidoriantan.tech"
+  },
+  "main": "index.js",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/eidoriantan/radion-scrapers.git"
+  },
+  "scripts": {
+    "start": "node index.js",
+    "henradio": "node scripts/henradio.js",
+    "lint": "standard",
+    "postlint": "git log -1 --format=%B | commitlint",
+    "pretest": "npm run lint",
+    "test": "echo \"Error: no test specified\" && exit 0"
+  },
+  "dependencies": {
+    "form-data": "^4.0.0",
+    "node-cron": "^3.0.0"
+  },
+  "devDependencies": {
+    "@commitlint/cli": "^16.2.4",
+    "@commitlint/config-conventional": "^16.2.4",
+    "standard": "^17.0.0"
+  }
+}
