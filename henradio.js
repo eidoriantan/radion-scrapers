@@ -2,46 +2,64 @@
 const FormData = require('form-data')
 const request = require('./utils/request')
 
-module.exports.start = async (config) => {
-  console.log('Fetching new token counts...')
-  const totalQuery = JSON.stringify({
-    query: `query GetAllTracksCount {
-      hic_et_nunc_token_aggregate(where: {
-        mime: {_in: ["audio/ogg", "audio/wav", "audio/x-wav", "audio/mpeg"]},
-        token_holders: {
-          quantity: {_gt: "0"},
-          holder_id: {_neq: "tz1burnburnburnburnburnburnburjAYjjX"}
-        }
-      }) {
-        aggregate {
-          count
-        }
-      }
-    }`
-  })
+module.exports.start = async (config = {}) => {
+  const maximum = config.maximum
 
-  const totalRes = await request('https://api.hicdex.com/v1/graphql', {
-    method: 'POST',
-    headers: {
-      Accept: 'application/json',
-      'Content-Type': 'application/json'
-    }
-  }, totalQuery)
-
-  const offsetRes = await request('https://www.radion.fm/api/fingerprint/count.php?platform=Hen+Radio', {
+  console.log('Fetching last token...')
+  const lastRes = await request('https://www.radion.fm/api/fingerprint/last.php?platform=Hen+Radio', {
     method: 'GET',
     headers: {
       Accept: 'application/json'
     }
   })
 
-  const total = totalRes.data.data.hic_et_nunc_token_aggregate.aggregate.count
-  const offset = offsetRes.data.count
+  const last = lastRes.data.last
+  const title = last.title
+  const artist = last.artist
 
-  console.log('Fetching tokens from hicdex API...')
+  const artistQuery = artist.match(/^(tz)([a-zA-Z0-9]{34})$/) !== null
+    ? `creator_id: {_eq: "${artist}"}`
+    : `creator: { name: {_eq: "${artist}"} }`
+
+  const lastIDQuery = JSON.stringify({
+    query: `query GetAllTracks($offset: Int!, $limit: Int!) {
+      hic_et_nunc_token(where: {
+        title: {_eq: "${title}"},
+        ${artistQuery},
+        mime: {_in: ["audio/ogg", "audio/wav", "audio/x-wav", "audio/mpeg"]},
+        token_holders: {
+          quantity: {_gt: "0"},
+          holder_id: {_neq: "tz1burnburnburnburnburnburnburjAYjjX"}
+        }
+      }, limit: $limit, offset: $offset) {
+        id
+      }
+    }`,
+    variables: {
+      offset: 0,
+      limit: 1
+    }
+  })
+
+  const lastIDRes = await request('https://api.hicdex.com/v1/graphql', {
+    method: 'POST',
+    headers: {
+      Accept: 'application/json',
+      'Content-Type': 'application/json'
+    }
+  }, lastIDQuery)
+
+  const lastToken = lastIDRes.data.data.hic_et_nunc_token[0]
+  const lastID = typeof lastToken !== 'undefined' ? lastToken.id : null
+  if (lastID === null) {
+    throw new Error('Unknown last token')
+  }
+
+  console.log('Fetching new tokens from hicdex API...')
   const data = JSON.stringify({
     query: `query GetAllTracks($offset: Int!, $limit: Int!) {
       hic_et_nunc_token(where: {
+        id: {_gt: "${lastID}"},
         mime: {_in: ["audio/ogg", "audio/wav", "audio/mpeg"]},
         token_holders: {quantity: {_gt: "0"},
         holder_id: {_neq: "tz1burnburnburnburnburnburnburjAYjjX"}}
@@ -77,8 +95,8 @@ module.exports.start = async (config) => {
       }
     }`,
     variables: {
-      offset,
-      limit: total - offset
+      offset: 0,
+      limit: maximum
     }
   })
 
