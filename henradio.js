@@ -123,6 +123,7 @@ module.exports.start = async (config = {}) => {
       form.append('audio', token.artifact_uri.slice(7))
       form.append('artwork', token.display_uri !== '' ? token.display_uri.slice(7) : token.thumbnail_uri.slice(7))
       form.append('platform', 'Hen Radio')
+      form.append('blockchain', 'Tezos')
 
       const formBuffer = form.getBuffer()
       const formLength = form.getLengthSync()
