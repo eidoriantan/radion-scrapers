@@ -14,8 +14,8 @@ module.exports.start = async (config = {}) => {
   })
 
   const last = lastRes.data.last
-  const title = last.title
-  const artist = last.artist
+  const title = last.title.replace(/\"/g, '\\"')
+  const artist = last.artist.replace(/\"/g, '\\"')
 
   const artistQuery = artist.match(/^(tz)([a-zA-Z0-9]{34})$/) !== null
     ? `creator_id: {_eq: "${artist}"}`
@@ -49,6 +49,7 @@ module.exports.start = async (config = {}) => {
     }
   }, lastIDQuery)
 
+  console.log(lastIDRes.data)
   const lastToken = lastIDRes.data.data.hic_et_nunc_token[0]
   const lastID = typeof lastToken !== 'undefined' ? lastToken.id : null
   if (lastID === null) {
