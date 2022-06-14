@@ -49,7 +49,6 @@ module.exports.start = async (config = {}) => {
     }
   }, lastIDQuery)
 
-  console.log(lastIDRes.data)
   const lastToken = lastIDRes.data.data.hic_et_nunc_token[0]
   const lastID = typeof lastToken !== 'undefined' ? lastToken.id : null
   if (lastID === null) {
