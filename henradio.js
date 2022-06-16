@@ -75,6 +75,8 @@ module.exports.start = async (config = {}) => {
 
   for (let i = 0; i < tokens.length; i++) {
     const token = tokens[i]
+    await fs.promises.writeFile(lastIDPath, token.id.toString())
+
     try {
       const form = new FormData()
       form.append('title', token.title)
@@ -110,7 +112,5 @@ module.exports.start = async (config = {}) => {
       console.error('Token ID: ' + token.id)
       console.error(error.message + '\r\n')
     }
-
-    await fs.promises.writeFile(lastIDPath, token.id.toString())
   }
 }
