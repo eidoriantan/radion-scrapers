@@ -105,12 +105,12 @@ module.exports.start = async (config = {}) => {
           throw new Error(result.message)
         }
       }
-
-      await fs.promises.writeFile(lastIDPath, token.id)
       console.log('Processed ' + token.id + '\r\n')
     } catch (error) {
       console.error('Token ID: ' + token.id)
       console.error(error.message + '\r\n')
     }
+
+    await fs.promises.writeFile(lastIDPath, token.id)
   }
 }
