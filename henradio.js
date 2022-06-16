@@ -7,11 +7,11 @@ const request = require('./utils/request')
 module.exports.start = async (config = {}) => {
   const maximum = config.maximum
   const lastIDPath = path.resolve(__dirname, 'data/last-id.txt')
-  let lastID = 0
+  let lastID = '0'
 
   try {
     await fs.promises.access(lastIDPath, fs.constants.F_OK)
-    lastID = await fs.promises.readFile(lastIDPath, { encoding: 'utf-8' }) || 0
+    lastID = await fs.promises.readFile(lastIDPath, { encoding: 'utf-8' }) || '0'
   } catch (error) {
     console.error(error)
     throw new Error(`"${lastIDPath}" is not accessible`)
@@ -22,7 +22,7 @@ module.exports.start = async (config = {}) => {
     ? ({
       query: `query GetAllTracks($offset: Int!, $limit: Int!) {
         hic_et_nunc_token(where: {
-          id: {_gt: "${lastID}"},
+          id: {_gt: "${lastID.trim()}"},
           mime: {_in: ["audio/ogg", "audio/wav", "audio/mpeg"]},
           token_holders: {quantity: {_gt: "0"},
           holder_id: {_neq: "tz1burnburnburnburnburnburnburjAYjjX"}}
@@ -64,7 +64,7 @@ module.exports.start = async (config = {}) => {
     }) : ({
       query: `query GetAllTracks {
         hic_et_nunc_token(where: {
-          id: {_gt: "${lastID}"},
+          id: {_gt: "${lastID.trim()}"},
           mime: {_in: ["audio/ogg", "audio/wav", "audio/mpeg"]},
           token_holders: {quantity: {_gt: "0"},
           holder_id: {_neq: "tz1burnburnburnburnburnburnburjAYjjX"}}
