@@ -111,6 +111,6 @@ module.exports.start = async (config = {}) => {
       console.error(error.message + '\r\n')
     }
 
-    await fs.promises.writeFile(lastIDPath, token.id)
+    await fs.promises.writeFile(lastIDPath, token.id.toString())
   }
 }
