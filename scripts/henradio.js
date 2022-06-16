@@ -2,4 +2,4 @@
 const henradio = require('../henradio')
 const config = require('../config.json')
 
-henradio.start(config)
+henradio.start({ maximum: false })

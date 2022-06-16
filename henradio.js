@@ -18,50 +18,90 @@ module.exports.start = async (config = {}) => {
   }
 
   console.log('Fetching new tokens from hicdex API...')
-  const data = JSON.stringify({
-    query: `query GetAllTracks($offset: Int!, $limit: Int!) {
-      hic_et_nunc_token(where: {
-        id: {_gt: "${lastID}"},
-        mime: {_in: ["audio/ogg", "audio/wav", "audio/mpeg"]},
-        token_holders: {quantity: {_gt: "0"},
-        holder_id: {_neq: "tz1burnburnburnburnburnburnburjAYjjX"}}
-      }, order_by: {id: asc}, limit: $limit, offset: $offset) {
-        id
-        display_uri
-        title
-        description
-        thumbnail_uri
-        mime
-        creator_id
-        creator {
-          name
-        }
-        artifact_uri
-        token_tags {
-          tag {
-            tag
+  const query = maximum
+    ? ({
+      query: `query GetAllTracks($offset: Int!, $limit: Int!) {
+        hic_et_nunc_token(where: {
+          id: {_gt: "${lastID}"},
+          mime: {_in: ["audio/ogg", "audio/wav", "audio/mpeg"]},
+          token_holders: {quantity: {_gt: "0"},
+          holder_id: {_neq: "tz1burnburnburnburnburnburnburjAYjjX"}}
+        }, order_by: {id: asc}, limit: $limit, offset: $offset) {
+          id
+          display_uri
+          title
+          description
+          thumbnail_uri
+          mime
+          creator_id
+          creator {
+            name
+          }
+          artifact_uri
+          token_tags {
+            tag {
+              tag
+            }
+          }
+          creator {
+            name
+            metadata
+          }
+          supply
+          token_holders {
+            quantity
+            holder_id
+          }
+          swaps(where: {status: {_eq: "0"}, contract_version: {_neq: "1"}}, order_by: {price: asc}) {
+            price
           }
         }
-        creator {
-          name
-          metadata
-        }
-        supply
-        token_holders {
-          quantity
-          holder_id
-        }
-        swaps(where: {status: {_eq: "0"}, contract_version: {_neq: "1"}}, order_by: {price: asc}) {
-          price
-        }
+      }`,
+      variables: {
+        offset: 0,
+        limit: maximum
       }
-    }`,
-    variables: {
-      offset: 0,
-      limit: maximum
-    }
-  })
+    }) : ({
+      query: `query GetAllTracks {
+        hic_et_nunc_token(where: {
+          id: {_gt: "${lastID}"},
+          mime: {_in: ["audio/ogg", "audio/wav", "audio/mpeg"]},
+          token_holders: {quantity: {_gt: "0"},
+          holder_id: {_neq: "tz1burnburnburnburnburnburnburjAYjjX"}}
+        }, order_by: {id: asc}) {
+          id
+          display_uri
+          title
+          description
+          thumbnail_uri
+          mime
+          creator_id
+          creator {
+            name
+          }
+          artifact_uri
+          token_tags {
+            tag {
+              tag
+            }
+          }
+          creator {
+            name
+            metadata
+          }
+          supply
+          token_holders {
+            quantity
+            holder_id
+          }
+          swaps(where: {status: {_eq: "0"}, contract_version: {_neq: "1"}}, order_by: {price: asc}) {
+            price
+          }
+        }
+      }`
+    })
 
+  const data = JSON.stringify(query)
   const tokensRes = await request('https://api.hicdex.com/v1/graphql', {
     method: 'POST',
     headers: {
