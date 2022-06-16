@@ -1,58 +1,20 @@
 
+const fs = require('fs')
+const path = require('path')
 const FormData = require('form-data')
 const request = require('./utils/request')
 
 module.exports.start = async (config = {}) => {
   const maximum = config.maximum
+  const lastIDPath = path.resolve(__dirname, 'data/last-id.txt')
+  let lastID = 0
 
-  console.log('Fetching last token...')
-  const lastRes = await request('https://www.radion.fm/api/fingerprint/last.php?platform=Hen+Radio', {
-    method: 'GET',
-    headers: {
-      Accept: 'application/json'
-    }
-  })
-
-  const last = lastRes.data.last
-  const title = last.title.replace(/\"/g, '\\"')
-  const artist = last.artist.replace(/\"/g, '\\"')
-
-  const artistQuery = artist.match(/^(tz)([a-zA-Z0-9]{34})$/) !== null
-    ? `creator_id: {_eq: "${artist}"}`
-    : `creator: { name: {_eq: "${artist}"} }`
-
-  const lastIDQuery = JSON.stringify({
-    query: `query GetAllTracks($offset: Int!, $limit: Int!) {
-      hic_et_nunc_token(where: {
-        title: {_eq: "${title}"},
-        ${artistQuery},
-        mime: {_in: ["audio/ogg", "audio/wav", "audio/x-wav", "audio/mpeg"]},
-        token_holders: {
-          quantity: {_gt: "0"},
-          holder_id: {_neq: "tz1burnburnburnburnburnburnburjAYjjX"}
-        }
-      }, limit: $limit, offset: $offset) {
-        id
-      }
-    }`,
-    variables: {
-      offset: 0,
-      limit: 1
-    }
-  })
-
-  const lastIDRes = await request('https://api.hicdex.com/v1/graphql', {
-    method: 'POST',
-    headers: {
-      Accept: 'application/json',
-      'Content-Type': 'application/json'
-    }
-  }, lastIDQuery)
-
-  const lastToken = lastIDRes.data.data.hic_et_nunc_token[0]
-  const lastID = typeof lastToken !== 'undefined' ? lastToken.id : null
-  if (lastID === null) {
-    throw new Error('Unknown last token')
+  try {
+    await fs.promises.access(lastIDPath, fs.constants.F_OK)
+    lastID = await fs.promises.readFile(lastIDPath, { encoding: 'utf-8' }) || 0
+  } catch (error) {
+    console.error(error)
+    throw new Error(`"${lastIDPath}" is not accessible`)
   }
 
   console.log('Fetching new tokens from hicdex API...')
@@ -143,6 +105,8 @@ module.exports.start = async (config = {}) => {
           throw new Error(result.message)
         }
       }
+
+      await fs.promises.writeFile(lastIDPath, token.id)
       console.log('Processed ' + token.id + '\r\n')
     } catch (error) {
       console.error('Token ID: ' + token.id)
