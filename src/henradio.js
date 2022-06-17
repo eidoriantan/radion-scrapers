@@ -2,11 +2,11 @@
 const fs = require('fs')
 const path = require('path')
 const FormData = require('form-data')
-const request = require('./utils/request')
+const request = require('../utils/request')
 
 module.exports.start = async (config = {}) => {
   const maximum = config.maximum
-  const lastIDPath = path.resolve(__dirname, 'data/last-id.txt')
+  const lastIDPath = path.resolve(__dirname, 'data/henradio-lastid.txt')
   let lastID = '0'
 
   try {
@@ -18,8 +18,9 @@ module.exports.start = async (config = {}) => {
   }
 
   console.log('Fetching new tokens from hicdex API...')
-  const query = maximum
-    ? ({
+  let query = null
+  if (maximum) {
+    query = {
       query: `query GetAllTracks($offset: Int!, $limit: Int!) {
         hic_et_nunc_token(where: {
           id: {_gt: "${lastID.trim()}"},
@@ -61,7 +62,9 @@ module.exports.start = async (config = {}) => {
         offset: 0,
         limit: maximum
       }
-    }) : ({
+    }
+  } else {
+    query = {
       query: `query GetAllTracks {
         hic_et_nunc_token(where: {
           id: {_gt: "${lastID.trim()}"},
@@ -99,7 +102,8 @@ module.exports.start = async (config = {}) => {
           }
         }
       }`
-    })
+    }
+  }
 
   const data = JSON.stringify(query)
   const tokensRes = await request('https://api.hicdex.com/v1/graphql', {

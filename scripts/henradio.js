@@ -1,3 +1,3 @@
 
-const henradio = require('../henradio')
+const henradio = require('../src/henradio')
 henradio.start({ maximum: false })

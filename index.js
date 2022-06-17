@@ -2,7 +2,7 @@
 const cron = require('node-cron')
 
 const config = require('./config.json')
-const henRadio = require('./henradio')
+const henRadio = require('./src/henradio')
 
 const interval = config.rewardInterval.minute + ' ' +
   config.rewardInterval.hour + ' ' +
