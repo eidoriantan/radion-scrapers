@@ -3,6 +3,7 @@ const cron = require('node-cron')
 
 const config = require('./config.json')
 const henradio = require('./src/henradio')
+const melos = require('./src/melos')
 
 const interval = config.rewardInterval.minute + ' ' +
   config.rewardInterval.hour + ' ' +
@@ -12,6 +13,7 @@ const interval = config.rewardInterval.minute + ' ' +
 
 const task = cron.schedule(interval, async () => {
   await henradio.start(config.henradio)
+  await melos.start(config.melos)
 })
 
 process.on('SIGINT', () => {

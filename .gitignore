@@ -1,5 +1,6 @@
 
-/data/last-id.txt
+/data/henradio-lastid.txt
+/data/melos-lasttoken.txt
 
 config.json
 
