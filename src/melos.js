@@ -222,6 +222,6 @@ module.exports.start = async (config = {}) => {
   }
 
   if (i === maximum) {
-    await fs.promises.writeFile(lastTokenPath, `${cursor + 1}-0`)
+    await fs.promises.writeFile(lastTokenPath, `${parseInt(cursor) + 1}-0`)
   }
 }
