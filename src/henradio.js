@@ -6,7 +6,7 @@ const request = require('../utils/request')
 
 module.exports.start = async (config = {}) => {
   const maximum = config.maximum
-  const lastIDPath = path.resolve(__dirname, 'data/henradio-lastid.txt')
+  const lastIDPath = path.resolve(__dirname, '..', 'data/henradio-lastid.txt')
   let lastID = '0'
 
   try {
