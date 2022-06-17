@@ -7,14 +7,15 @@ const request = require('../utils/request')
 module.exports.start = async (config = {}) => {
   const maximum = config.maximum
   const lastIDPath = path.resolve(__dirname, '..', 'data/henradio-lastid.txt')
-  let lastID = '0'
+  let lastID = null
 
   try {
     await fs.promises.access(lastIDPath, fs.constants.F_OK)
-    lastID = await fs.promises.readFile(lastIDPath, { encoding: 'utf-8' }) || '0'
+    lastID = await fs.promises.readFile(lastIDPath, { encoding: 'utf-8' })
   } catch (error) {
-    console.error(error)
-    throw new Error(`"${lastIDPath}" is not accessible`)
+    console.log('Hen Radio data file does not exist. Creating one...')
+    lastID = '0'
+    await fs.promises.writeFile(lastIDPath, lastID)
   }
 
   console.log('Fetching new tokens from hicdex API...')
