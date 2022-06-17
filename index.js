@@ -12,8 +12,8 @@ const interval = config.rewardInterval.minute + ' ' +
   config.rewardInterval.dayOfWeek
 
 const task = cron.schedule(interval, async () => {
-  await henradio.start(config.henradio)
-  await melos.start(config.melos)
+  if (!process.env.NO_HENRADIO) await henradio.start(config.henradio)
+  if (!process.env.NO_MELOS) await melos.start(config.melos)
 })
 
 process.on('SIGINT', () => {
