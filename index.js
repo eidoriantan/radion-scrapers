@@ -2,7 +2,7 @@
 const cron = require('node-cron')
 
 const config = require('./config.json')
-const henRadio = require('./src/henradio')
+const henradio = require('./src/henradio')
 
 const interval = config.rewardInterval.minute + ' ' +
   config.rewardInterval.hour + ' ' +
@@ -11,7 +11,7 @@ const interval = config.rewardInterval.minute + ' ' +
   config.rewardInterval.dayOfWeek
 
 const task = cron.schedule(interval, async () => {
-  await henRadio.start(config.henradio)
+  await henradio.start(config.henradio)
 })
 
 process.on('SIGINT', () => {
