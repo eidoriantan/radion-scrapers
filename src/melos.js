@@ -194,6 +194,7 @@ module.exports.start = async (config = {}) => {
   for (i; i < maximum; i++) {
     const token = tokens[i]
     await fs.promises.writeFile(lastTokenPath, `${cursor}-${i}`)
+    lastCID = await fs.promises.readFile(lastCIDPath, { encoding: 'utf-8' })
 
     try {
       if (lastCID === token.sample) continue
