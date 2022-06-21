@@ -7,7 +7,9 @@ const request = require('../utils/request')
 module.exports.start = async (config = {}) => {
   const maximum = config.maximum
   const lastTokenPath = path.resolve(__dirname, '..', 'data/melos-lasttoken.txt')
+  const lastCIDPath = path.resolve(__dirname, '..', 'data/melos-lastcid.txt')
   let lastToken = null
+  let lastCID = null
 
   try {
     await fs.promises.access(lastTokenPath, fs.constants.F_OK)
@@ -16,6 +18,15 @@ module.exports.start = async (config = {}) => {
     console.log('MELOS Studio data file does not exist. Creating one...')
     lastToken = '0-0'
     await fs.promises.writeFile(lastTokenPath, lastToken)
+  }
+
+  try {
+    await fs.promises.access(lastCIDPath, fs.constants.F_OK)
+    lastCID = null
+  } catch (error) {
+    console.log('MELOS Studio last CID file does not exist. Creating one...')
+    lastCID = ''
+    await fs.promises.writeFile(lastCIDPath, lastCID)
   }
 
   console.log('Fetching new tokens from melos.studio API...')
@@ -185,6 +196,9 @@ module.exports.start = async (config = {}) => {
     await fs.promises.writeFile(lastTokenPath, `${cursor}-${i}`)
 
     try {
+      if (lastCID === token.sample) continue
+      await fs.promises.writeFile(lastCIDPath, token.sample)
+
       const form = new FormData()
       form.append('title', token.name)
       form.append('artist', token.creator.name)
