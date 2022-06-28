@@ -6,33 +6,20 @@ const request = require('../utils/request')
 
 module.exports.start = async (config = {}) => {
   const maximum = config.maximum
-  const lastTokenPath = path.resolve(__dirname, '..', 'data/melos-lasttoken.txt')
-  const lastCIDPath = path.resolve(__dirname, '..', 'data/melos-lastcid.txt')
-  let lastToken = null
-  let lastCID = null
+  const lastCursorPath = path.resolve(__dirname, '..', 'data/melos-lastcursor.txt')
+  let lastCursor = null
 
   try {
-    await fs.promises.access(lastTokenPath, fs.constants.F_OK)
-    lastToken = await fs.promises.readFile(lastTokenPath, { encoding: 'utf-8' })
+    await fs.promises.access(lastCursorPath, fs.constants.F_OK)
+    lastCursor = await fs.promises.readFile(lastCursorPath, { encoding: 'utf-8' })
+    lastCursor = lastCursor.trim()
   } catch (error) {
     console.log('MELOS Studio data file does not exist. Creating one...')
-    lastToken = '0-0'
-    await fs.promises.writeFile(lastTokenPath, lastToken)
-  }
-
-  try {
-    await fs.promises.access(lastCIDPath, fs.constants.F_OK)
-    lastCID = null
-  } catch (error) {
-    console.log('MELOS Studio last CID file does not exist. Creating one...')
-    lastCID = ''
-    await fs.promises.writeFile(lastCIDPath, lastCID)
+    lastCursor = '0'
+    await fs.promises.writeFile(lastCursorPath, lastCursor)
   }
 
   console.log('Fetching new tokens from melos.studio API...')
-  const parts = lastToken.trim().split('-')
-  const cursor = parts[0]
-  const index = parseInt(parts[1])
   const data = JSON.stringify({
     query: `query searchMusicProducts($query: QueryMusicTokenInput!, $cursor: String, $limit: Int) {
       searchMusicProducts(query: $query, cursor: $cursor, limit: $limit) {
@@ -163,7 +150,7 @@ module.exports.start = async (config = {}) => {
       }
     }`,
     variables: {
-      cursor,
+      cursor: lastCursor,
       limit: maximum,
       query: {
         chainId: null,
@@ -190,16 +177,12 @@ module.exports.start = async (config = {}) => {
   const response = tokensRes.data.data
   const tokens = response.searchMusicProducts.nodes
 
-  let i = index
-  for (i; i < maximum; i++) {
+  for (let i = 0; i < tokens.length; i++) {
     const token = tokens[i]
-    await fs.promises.writeFile(lastTokenPath, `${cursor}-${i}`)
-    lastCID = await fs.promises.readFile(lastCIDPath, { encoding: 'utf-8' })
+    const cursor = parseInt(lastCursor) + i
+    await fs.promises.writeFile(lastCursorPath, cursor.toString())
 
     try {
-      if (lastCID === token.sample) continue
-      await fs.promises.writeFile(lastCIDPath, token.sample)
-
       const form = new FormData()
       form.append('title', token.name)
       form.append('artist', token.creator.name)
@@ -234,9 +217,5 @@ module.exports.start = async (config = {}) => {
       console.error('Token Name: ' + token.name)
       console.error(error.message + '\r\n')
     }
-  }
-
-  if (i === maximum) {
-    await fs.promises.writeFile(lastTokenPath, `${parseInt(cursor) + 1}-0`)
   }
 }
