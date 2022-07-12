@@ -23,7 +23,7 @@
   },
   "scripts": {
     "start": "node index.js",
-    "henradio": "node scripts/henradio.js",
+    "objkt": "node scripts/objkt.js",
     "melos": "node scripts/melos.js",
     "lint": "standard",
     "postlint": "git log -1 --format=%B | commitlint",
