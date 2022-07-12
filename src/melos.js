@@ -174,6 +174,11 @@ module.exports.start = async (config = {}) => {
     }
   }, data)
 
+  if (tokensRes.res.statusCode !== 200) {
+    console.error(tokensRes.data)
+    throw new Error('Response Code: ' + tokensRes.res.statusCode.toString())
+  }
+
   const response = tokensRes.data.data
   const tokens = response.searchMusicProducts.nodes
 
@@ -201,18 +206,23 @@ module.exports.start = async (config = {}) => {
         }
       }, formBuffer)
 
-      const result = JSON.parse(fingerprintRes.data)
-      if (!result.success) {
-        if (result.message === 'Detected similar song') {
-          const title = result.similar.title
-          const artist = result.similar.artist
-          console.error('Token Name: ' + token.name)
-          console.error('Detected similar song: ' + artist + ' - ' + title + '\r\n')
-        } else {
-          throw new Error(result.message)
+      if (fingerprintRes.res.statusCode === 200) {
+        const result = JSON.parse(fingerprintRes.data)
+        if (!result.success) {
+          if (result.message === 'Detected similar song') {
+            const title = result.similar.title
+            const artist = result.similar.artist
+            console.error('Token Name: ' + token.name)
+            console.error('Detected similar song: ' + artist + ' - ' + title + '\r\n')
+          } else {
+            throw new Error(result.message)
+          }
         }
+        console.log('Processed ' + token.name + '\r\n')
+      } else {
+        console.error('Token ID: ' + token.token_id)
+        console.error('Response Code: ' + fingerprintRes.res.statusCode)
       }
-      console.log('Processed ' + token.name + '\r\n')
     } catch (error) {
       console.error('Token Name: ' + token.name)
       console.error(error.message + '\r\n')
