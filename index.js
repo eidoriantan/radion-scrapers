@@ -2,7 +2,7 @@
 const cron = require('node-cron')
 
 const config = require('./config.json')
-const henradio = require('./src/henradio')
+const objkt = require('./src/objkt')
 const melos = require('./src/melos')
 
 const interval = config.rewardInterval.minute + ' ' +
@@ -11,13 +11,17 @@ const interval = config.rewardInterval.minute + ' ' +
   config.rewardInterval.month + ' ' +
   config.rewardInterval.dayOfWeek
 
-const task = cron.schedule(interval, async () => {
-  if (!process.env.NO_HENRADIO) await henradio.start(config.henradio)
-  if (!process.env.NO_MELOS) await melos.start(config.melos)
+const objktTask = cron.schedule(interval, async () => {
+  return await objkt.start(config.objkt)
+})
+
+const melosTask = cron.schedule(interval, async () => {
+  return await melos.start(config.melos)
 })
 
 process.on('SIGINT', () => {
-  task.stop()
+  objktTask.stop()
+  melosTask.stop()
 })
 
 process.on('uncaughtException', error => {

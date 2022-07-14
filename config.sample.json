@@ -1,9 +1,16 @@
 {
-  "henradio": {
+  "objkt": {
     "maximum": 25
   },
   "melos": {
     "maximum": 30
+  },
+  "contract": {
+    "maximum": 30,
+    "network": "mainnet",
+    "addresses": {
+      "radion": "KT1VvhVUBWUrfMpVky6b7PuCVNMTuxRMEKrj"
+    }
   },
   "rewardInterval": {
     "minute": "*",
