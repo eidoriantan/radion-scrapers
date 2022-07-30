@@ -16,7 +16,11 @@ module.exports = (url, options = {}, data = null) => {
 
       res.on('end', () => {
         if (options.headers && options.headers.Accept === 'application/json') {
-          response.data = JSON.parse(response.data)
+          try {
+            response.data = JSON.parse(response.data)
+          } catch (error) {
+            console.log('Unable to parse JSON:', response.data)
+          }
         }
 
         resolve(response)
