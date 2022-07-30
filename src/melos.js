@@ -2,7 +2,7 @@
 const fs = require('fs')
 const path = require('path')
 const FormData = require('form-data')
-const request = require('../utils/request')
+const axios = require('axios').default
 
 module.exports.start = async (config = {}) => {
   const maximum = config.maximum
@@ -20,7 +20,7 @@ module.exports.start = async (config = {}) => {
   }
 
   console.log('Fetching new tokens from melos.studio API...')
-  const data = JSON.stringify({
+  const data = {
     query: `query searchMusicProducts($query: QueryMusicTokenInput!, $cursor: String, $limit: Int) {
       searchMusicProducts(query: $query, cursor: $cursor, limit: $limit) {
         nodes {
@@ -164,19 +164,12 @@ module.exports.start = async (config = {}) => {
         symbol: null
       }
     }
-  })
+  }
 
-  const tokensRes = await request('https://app.melos.studio/graphql', {
-    method: 'POST',
-    headers: {
-      Accept: 'application/json',
-      'Content-Type': 'application/json'
-    }
-  }, data)
-
-  if (tokensRes.res.statusCode !== 200) {
+  const tokensRes = await axios.post('https://app.melos.studio/graphql', data)
+  if (tokensRes.status !== 200) {
     console.error(tokensRes.data)
-    throw new Error('Response Code: ' + tokensRes.res.statusCode.toString())
+    throw new Error('Response Code: ' + tokensRes.status.toString())
   }
 
   const response = tokensRes.data.data
@@ -198,16 +191,15 @@ module.exports.start = async (config = {}) => {
 
       const formBuffer = form.getBuffer()
       const formLength = form.getLengthSync()
-      const fingerprintRes = await request('https://www.radion.fm/api/fingerprint/', {
-        method: 'POST',
+      const fingerprintRes = await axios.post('https://www.radion.fm/api/fingerprint/', formBuffer, {
         headers: {
           'Content-Type': 'multipart/form-data; boundary=' + form.getBoundary(),
           'Content-Length': formLength
         }
-      }, formBuffer)
+      })
 
-      if (fingerprintRes.res.statusCode === 200) {
-        const result = JSON.parse(fingerprintRes.data)
+      if (fingerprintRes.status === 200) {
+        const result = fingerprintRes.data
         if (!result.success) {
           if (result.message === 'Detected similar song') {
             const title = result.similar.title
@@ -221,7 +213,7 @@ module.exports.start = async (config = {}) => {
         console.log('Processed ' + token.name + '\r\n')
       } else {
         console.error('Token ID: ' + token.token_id)
-        console.error('Response Code: ' + fingerprintRes.res.statusCode)
+        console.error('Response Code: ' + fingerprintRes.status.toString())
       }
     } catch (error) {
       console.error('Token Name: ' + token.name)

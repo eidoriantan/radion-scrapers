@@ -2,7 +2,7 @@
 const fs = require('fs')
 const path = require('path')
 const FormData = require('form-data')
-const request = require('../utils/request')
+const axios = require('axios').default
 
 module.exports.start = async (config = {}) => {
   const maximum = config.maximum
@@ -35,16 +35,10 @@ async function processContract (name, address, network = 'mainnet', limit = 30) 
   search.set('tokenId.ge', lastToken)
   search.set('limit', limit)
 
-  const tokensRes = await request(`https://api.tzkt.io/v1/tokens?${search.toString()}`, {
-    method: 'GET',
-    headers: {
-      Accept: 'application/json'
-    }
-  })
-
-  if (tokensRes.res.statusCode !== 200) {
+  const tokensRes = await axios.get(`https://api.tzkt.io/v1/tokens?${search.toString()}`)
+  if (tokensRes.status !== 200) {
     console.error(tokensRes.data)
-    throw new Error('Response Code: ' + tokensRes.res.statusCode.toString())
+    throw new Error('Response Code: ' + tokensRes.status.toString())
   }
 
   const tokens = tokensRes.data
@@ -64,15 +58,14 @@ async function processContract (name, address, network = 'mainnet', limit = 30) 
 
       const formBuffer = form.getBuffer()
       const formLength = form.getLengthSync()
-      const fingerprintRes = await request('https://www.radion.fm/api/fingerprint/', {
-        method: 'POST',
+      const fingerprintRes = await axios.post('https://www.radion.fm/api/fingerprint', formBuffer, {
         headers: {
           'Content-Type': 'multipart/form-data; boundary=' + form.getBoundary(),
           'Content-Length': formLength
         }
-      }, formBuffer)
+      })
 
-      if (fingerprintRes.res.statusCode === 200) {
+      if (fingerprintRes.status === 200) {
         const result = JSON.parse(fingerprintRes.data)
         if (!result.success) {
           if (result.message === 'Detected similar song') {
@@ -87,7 +80,7 @@ async function processContract (name, address, network = 'mainnet', limit = 30) 
         console.log('Processed ' + metadata.name + '\r\n')
       } else {
         console.error('Token ID: ' + token.tokenId)
-        console.error('Response Code: ' + fingerprintRes.res.statusCode)
+        console.error('Response Code: ' + fingerprintRes.status.toString())
       }
     } catch (error) {
       console.error('Token Name: ' + metadata.name)
