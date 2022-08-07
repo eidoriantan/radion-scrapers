@@ -11,17 +11,24 @@ const interval = config.rewardInterval.minute + ' ' +
   config.rewardInterval.month + ' ' +
   config.rewardInterval.dayOfWeek
 
-const objktTask = cron.schedule(interval, async () => {
-  return await objkt.start(config.objkt)
-})
+let objktTask = null
+let melosTask = null
 
-const melosTask = cron.schedule(interval, async () => {
-  return await melos.start(config.melos)
-})
+if (!process.env.NO_OBJKT) {
+  objktTask = cron.schedule(interval, async () => {
+    return await objkt.start(config.objkt)
+  })
+}
+
+if (!process.env.NO_MELOS) {
+  melosTask = cron.schedule(interval, async () => {
+    return await melos.start(config.melos)
+  })
+}
 
 process.on('SIGINT', () => {
-  objktTask.stop()
-  melosTask.stop()
+  if (objktTask) objktTask.stop()
+  if (melosTask) melosTask.stop()
 })
 
 process.on('uncaughtException', error => {
