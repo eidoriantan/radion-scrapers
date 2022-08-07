@@ -7,12 +7,15 @@ const axios = require('axios').default
 module.exports.start = async (config = {}) => {
   const maximum = config.maximum
   const network = config.network
+  const contracts = []
   if (!config.addresses) return
 
   for (const name in config.addresses) {
     const address = config.addresses[name]
-    processContract(name, address, network, maximum)
+    contracts.push(processContract(name, address, network, maximum))
   }
+
+  return await Promise.all(contracts)
 }
 
 async function processContract (name, address, network = 'mainnet', limit = 30) {
