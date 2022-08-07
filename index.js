@@ -4,6 +4,7 @@ const cron = require('node-cron')
 const config = require('./config.json')
 const objkt = require('./src/objkt')
 const melos = require('./src/melos')
+const contract = require('./src/contract')
 
 const interval = config.rewardInterval.minute + ' ' +
   config.rewardInterval.hour + ' ' +
@@ -13,6 +14,13 @@ const interval = config.rewardInterval.minute + ' ' +
 
 let objktTask = null
 let melosTask = null
+let contractTask = null
+
+if (!process.env.NO_CONTRACT) {
+  contractTask = cron.schedule(interval, async () => {
+    return await contract.start(config.contract)
+  })
+}
 
 if (!process.env.NO_OBJKT) {
   objktTask = cron.schedule(interval, async () => {
@@ -29,6 +37,7 @@ if (!process.env.NO_MELOS) {
 process.on('SIGINT', () => {
   if (objktTask) objktTask.stop()
   if (melosTask) melosTask.stop()
+  if (contractTask) contractTask.stop()
 })
 
 process.on('uncaughtException', error => {
