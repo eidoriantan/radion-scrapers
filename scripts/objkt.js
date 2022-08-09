@@ -1,3 +1,5 @@
 
 const objkt = require('../src/objkt')
-objkt.start()
+const config = require('../config.json')
+
+objkt.start(config.objkt)
