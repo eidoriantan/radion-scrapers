@@ -1,6 +1,6 @@
 
-/data/melos-lastcursor.txt
-/data/*-lasttoken.txt
+/data/*
+!/data/.gitkeep
 
 config.json
 
