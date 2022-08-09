@@ -63,95 +63,91 @@ module.exports.start = async (config = {}) => {
   console.log('Fetching new tokens from OBJKT Public API...')
   const limit = 500
   let tokens = await getTokens(lastToken, limit)
-  while (tokens.length === limit) {
-    for (let i = 0; i < tokens.length; i++) {
-      const token = tokens[i]
-      lastToken++
-      await fs.promises.writeFile(lastTokenPath, lastToken.toString())
+  for (let i = 0; i < tokens.length; i++) {
+    const token = tokens[i]
+    lastToken++
+    await fs.promises.writeFile(lastTokenPath, lastToken.toString())
 
-      const holder = token.creators !== null && token.creators.length > 0 ? token.creators[0].holder : null
-      const artist = holder !== null ? holder.alias : ''
-      const title = token.name
-      let exists = false
+    const holder = token.creators !== null && token.creators.length > 0 ? token.creators[0].holder : null
+    const artist = holder !== null ? holder.alias : ''
+    const title = token.name
+    let exists = false
 
-      try {
-        const query = new URLSearchParams()
-        query.set('title', title)
-        query.set('artist', artist)
+    try {
+      const query = new URLSearchParams()
+      query.set('title', title)
+      query.set('artist', artist)
 
-        const url = 'https://www.radion.fm/api/fingerprint/search.php?' + query.toString()
-        const searchRes = await axios.get(url)
-        if (searchRes.data.length > 0) {
-          exists = true
-          break
-        }
-      } catch (error) {
-        console.error('"' + title + '" already exists...')
+      const url = 'https://www.radion.fm/api/fingerprint/search.php?' + query.toString()
+      const searchRes = await axios.get(url)
+      if (searchRes.data.length > 0) {
+        exists = true
+        break
       }
-
-      if (exists) break
-      try {
-        const form = new FormData()
-        form.append('title', title)
-        form.append('artist', artist)
-        form.append('audio', token.artifact_uri.slice(7))
-        form.append('artwork', token.display_uri ? token.display_uri.slice(7) : (token.thumbnail_uri && token.thumbnail_uri.slice(7)))
-        form.append('platform', 'OBJKT')
-        form.append('blockchain', 'Tezos')
-
-        const formBuffer = form.getBuffer()
-        const formLength = form.getLengthSync()
-        const timeoutPromise = timeoutAsync(timeout, async () => {
-          let skipped = ''
-          try {
-            await fs.promises.access(skippedPath, fs.constants.F_OK)
-            skipped = await fs.promises.readFile(skippedPath, { encoding: 'utf-8' })
-            skipped = skipped.trim()
-          } catch (error) {}
-
-          await fs.promises.writeFile(skippedPath, skipped + '\r\n' + token.token_id)
-        })
-
-        const submission = axios.post('https://www.radion.fm/api/fingerprint/', formBuffer, {
-          headers: {
-            'Content-Type': 'multipart/form-data; boundary=' + form.getBoundary(),
-            'Content-Length': formLength
-          }
-        })
-
-        const fingerprintRes = await Promise.race([submission, timeoutPromise])
-        if (fingerprintRes.status === 200) {
-          const result = fingerprintRes.data
-          if (!result.success) {
-            if (result.message === 'Detected similar song') {
-              const title = result.similar.title
-              const artist = result.similar.artist
-              console.error('Token ID: ' + token.token_id)
-              console.error('Detected similar song: ' + artist + ' - ' + title + '\r\n')
-            } else {
-              throw new Error(result.message)
-            }
-          }
-          console.log('Processed ' + token.token_id + '\r\n')
-        } else {
-          throw new Error('Response Code: ' + fingerprintRes.status.toString())
-        }
-      } catch (error) {
-        console.error('Token Name: ' + title)
-        console.error('Token ID: ' + token.token_id)
-        console.error(error.message + '\r\n')
-
-        let errors = ''
-        try {
-          await fs.promises.access(errorsPath, fs.constants.F_OK)
-          errors = await fs.promises.readFile(errorsPath, { encoding: 'utf-8' })
-          errors = errors.trim()
-        } catch (error) {}
-
-        await fs.promises.writeFile(errorsPath, errors + '\r\n' + token.token_id)
-      }
+    } catch (error) {
+      console.error('"' + title + '" already exists...')
     }
 
-    tokens = await getTokens(lastToken, limit)
+    if (exists) break
+    try {
+      const form = new FormData()
+      form.append('title', title)
+      form.append('artist', artist)
+      form.append('audio', token.artifact_uri.slice(7))
+      form.append('artwork', token.display_uri ? token.display_uri.slice(7) : (token.thumbnail_uri && token.thumbnail_uri.slice(7)))
+      form.append('platform', 'OBJKT')
+      form.append('blockchain', 'Tezos')
+
+      const formBuffer = form.getBuffer()
+      const formLength = form.getLengthSync()
+      const timeoutPromise = timeoutAsync(timeout, async () => {
+        let skipped = ''
+        try {
+          await fs.promises.access(skippedPath, fs.constants.F_OK)
+          skipped = await fs.promises.readFile(skippedPath, { encoding: 'utf-8' })
+          skipped = skipped.trim()
+        } catch (error) {}
+
+        await fs.promises.writeFile(skippedPath, skipped + '\r\n' + token.token_id)
+      })
+
+      const submission = axios.post('https://www.radion.fm/api/fingerprint/', formBuffer, {
+        headers: {
+          'Content-Type': 'multipart/form-data; boundary=' + form.getBoundary(),
+          'Content-Length': formLength
+        }
+      })
+
+      const fingerprintRes = await Promise.race([submission, timeoutPromise])
+      if (fingerprintRes.status === 200) {
+        const result = fingerprintRes.data
+        if (!result.success) {
+          if (result.message === 'Detected similar song') {
+            const title = result.similar.title
+            const artist = result.similar.artist
+            console.error('Token ID: ' + token.token_id)
+            console.error('Detected similar song: ' + artist + ' - ' + title + '\r\n')
+          } else {
+            throw new Error(result.message)
+          }
+        }
+        console.log('Processed ' + token.token_id + '\r\n')
+      } else {
+        throw new Error('Response Code: ' + fingerprintRes.status.toString())
+      }
+    } catch (error) {
+      console.error('Token Name: ' + title)
+      console.error('Token ID: ' + token.token_id)
+      console.error(error.message + '\r\n')
+
+      let errors = ''
+      try {
+        await fs.promises.access(errorsPath, fs.constants.F_OK)
+        errors = await fs.promises.readFile(errorsPath, { encoding: 'utf-8' })
+        errors = errors.trim()
+      } catch (error) {}
+
+      await fs.promises.writeFile(errorsPath, errors + '\r\n' + token.token_id)
+    }
   }
 }
