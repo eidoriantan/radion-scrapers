@@ -7,18 +7,31 @@ const axios = require('axios').default
 module.exports.start = async (config = {}) => {
   const maximum = config.maximum
   const network = config.network
+  const timeout = config.timeout
   const contracts = []
   if (!config.addresses) return
 
   for (const name in config.addresses) {
     const address = config.addresses[name]
-    contracts.push(processContract(name, address, network, maximum))
+    contracts.push(processContract(name, address, network, maximum, timeout))
   }
 
   return await Promise.all(contracts)
 }
 
-async function processContract (name, address, network = 'mainnet', limit = 30) {
+async function timeoutAsync (timeout, callback) {
+  return new Promise((resolve, reject) => {
+    setTimeout(() => {
+      callback()
+      const error = new Error('Timed out')
+      reject(error)
+    }, timeout)
+  })
+}
+
+async function processContract (name, address, network = 'mainnet', limit = 30, timeout = 60000) {
+  const skippedPath = path.resolve(__dirname, '..', 'data/' + name + '-skipped.txt')
+  const errorsPath = path.resolve(__dirname, '..', 'data/' + name + '-errors.txt')
   const lastTokenPath = path.resolve(__dirname, '..', 'data/' + name + '-lasttoken.txt')
   let lastToken = null
 
@@ -61,13 +74,25 @@ async function processContract (name, address, network = 'mainnet', limit = 30) 
 
       const formBuffer = form.getBuffer()
       const formLength = form.getLengthSync()
-      const fingerprintRes = await axios.post('https://www.radion.fm/api/fingerprint', formBuffer, {
+      const timeoutPromise = timeoutAsync(timeout, async () => {
+        let skipped = ''
+        try {
+          await fs.promises.access(skippedPath, fs.constants.F_OK)
+          skipped = await fs.promises.readFile(skippedPath, { encoding: 'utf-8' })
+          skipped = skipped.trim()
+        } catch (error) {}
+
+        await fs.promises.writeFile(skippedPath, skipped + '\r\n' + token.tokenId)
+      })
+
+      const submission = axios.post('https://www.radion.fm/api/fingerprint', formBuffer, {
         headers: {
           'Content-Type': 'multipart/form-data; boundary=' + form.getBoundary(),
           'Content-Length': formLength
         }
       })
 
+      const fingerprintRes = await Promise.race([submission, timeoutPromise])
       if (fingerprintRes.status === 200) {
         const result = JSON.parse(fingerprintRes.data)
         if (!result.success) {
@@ -82,12 +107,21 @@ async function processContract (name, address, network = 'mainnet', limit = 30) 
         }
         console.log('Processed ' + metadata.name + '\r\n')
       } else {
-        console.error('Token ID: ' + token.tokenId)
-        console.error('Response Code: ' + fingerprintRes.status.toString())
+        throw new Error('Response Code: ' + fingerprintRes.status.toString())
       }
     } catch (error) {
       console.error('Token Name: ' + metadata.name)
+      console.error('Token ID: ' + token.tokenId)
       console.error(error.message + '\r\n')
+
+      let errors = ''
+      try {
+        await fs.promises.access(errorsPath, fs.constants.F_OK)
+        errors = await fs.promises.readFile(errorsPath, { encoding: 'utf-8' })
+        errors = errors.trim()
+      } catch (error) {}
+
+      await fs.promises.writeFile(errorsPath, errors + '\r\n' + token.tokenId)
     }
   }
 }

@@ -4,8 +4,21 @@ const path = require('path')
 const FormData = require('form-data')
 const axios = require('axios').default
 
+async function timeoutAsync (timeout, callback) {
+  return new Promise((resolve, reject) => {
+    setTimeout(() => {
+      callback()
+      const error = new Error('Timed out')
+      reject(error)
+    }, timeout)
+  })
+}
+
 module.exports.start = async (config = {}) => {
   const maximum = config.maximum
+  const timeout = config.timeout || 60000
+  const skippedPath = path.resolve(__dirname, '../data/melos-skipped.txt')
+  const errorsPath = path.resolve(__dirname, '../data/melos-errors.txt')
   const lastCursorPath = path.resolve(__dirname, '..', 'data/melos-lastcursor.txt')
   let lastCursor = null
 
@@ -191,13 +204,25 @@ module.exports.start = async (config = {}) => {
 
       const formBuffer = form.getBuffer()
       const formLength = form.getLengthSync()
-      const fingerprintRes = await axios.post('https://www.radion.fm/api/fingerprint/', formBuffer, {
+      const timeoutPromise = timeoutAsync(timeout, async () => {
+        let skipped = ''
+        try {
+          await fs.promises.access(skippedPath, fs.constants.F_OK)
+          skipped = await fs.promises.readFile(skippedPath, { encoding: 'utf-8' })
+          skipped = skipped.trim()
+        } catch (error) {}
+
+        await fs.promises.writeFile(skippedPath, skipped + '\r\n' + token.token_id)
+      })
+
+      const submission = axios.post('https://www.radion.fm/api/fingerprint/', formBuffer, {
         headers: {
           'Content-Type': 'multipart/form-data; boundary=' + form.getBoundary(),
           'Content-Length': formLength
         }
       })
 
+      const fingerprintRes = await Promise.race([submission, timeoutPromise])
       if (fingerprintRes.status === 200) {
         const result = fingerprintRes.data
         if (!result.success) {
@@ -212,12 +237,21 @@ module.exports.start = async (config = {}) => {
         }
         console.log('Processed ' + token.name + '\r\n')
       } else {
-        console.error('Token ID: ' + token.token_id)
-        console.error('Response Code: ' + fingerprintRes.status.toString())
+        throw new Error('Response Code: ' + fingerprintRes.status.toString())
       }
     } catch (error) {
       console.error('Token Name: ' + token.name)
+      console.error('Token ID: ' + token.token_id)
       console.error(error.message + '\r\n')
+
+      let errors = ''
+      try {
+        await fs.promises.access(errorsPath, fs.constants.F_OK)
+        errors = await fs.promises.readFile(errorsPath, { encoding: 'utf-8' })
+        errors = errors.trim()
+      } catch (error) {}
+
+      await fs.promises.writeFile(errorsPath, errors + '\r\n' + token.token_id)
     }
   }
 }

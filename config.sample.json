@@ -1,13 +1,15 @@
 {
   "objkt": {
-    "maximum": 25
+    "timeout": 60000
   },
   "melos": {
+    "timeout": 60000,
     "maximum": 30
   },
   "contract": {
     "maximum": 30,
     "network": "mainnet",
+    "timeout": 60000,
     "addresses": {
       "radion": "KT1VvhVUBWUrfMpVky6b7PuCVNMTuxRMEKrj"
     }
