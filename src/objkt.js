@@ -137,6 +137,7 @@ module.exports.start = async (config = {}) => {
       }
     } catch (error) {
       console.error('Token Name: ' + title)
+      console.error('Contract Address: ' + token.fa_contract)
       console.error('Token ID: ' + token.token_id)
       console.error(error.message + '\r\n')
 
