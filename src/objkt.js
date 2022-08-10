@@ -44,6 +44,7 @@ async function timeoutAsync (timeout, callback) {
 }
 
 module.exports.start = async (config = {}) => {
+  const limit = config.limit || 100
   const timeout = config.timeout || 60000
   const skippedPath = path.resolve(__dirname, '../data/objkt-new-skipped.txt')
   const errorsPath = path.resolve(__dirname, '../data/objkt-new-errors.txt')
@@ -61,7 +62,6 @@ module.exports.start = async (config = {}) => {
   }
 
   console.log('Fetching new tokens from OBJKT Public API...')
-  const limit = 500
   const tokens = await getTokens(lastToken, limit)
   for (let i = 0; i < tokens.length; i++) {
     const token = tokens[i]

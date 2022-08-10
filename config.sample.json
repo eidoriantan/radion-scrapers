@@ -1,6 +1,7 @@
 {
   "objkt": {
-    "timeout": 60000
+    "timeout": 60000,
+    "limit": 100
   },
   "melos": {
     "timeout": 60000,
