@@ -10,7 +10,9 @@ async function getTokens (offset = 0, limit = 500) {
     query: `query GetTokens($offset: Int = 0, $limit: Int = 500) {
       token(where: {
         mime: {_regex: "^audio\\/"}
-      }, offset: $offset, limit: $limit) {
+      },
+      order_by: { timestamp: asc },
+      offset: $offset, limit: $limit) {
         name
         fa_contract
         token_id
