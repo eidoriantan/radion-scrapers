@@ -113,7 +113,7 @@ module.exports.start = async (config = {}) => {
           skipped = skipped.trim()
         } catch (error) {}
 
-        await fs.promises.writeFile(skippedPath, skipped + '\r\n' + token.token_id)
+        await fs.promises.writeFile(skippedPath, skipped + '\r\n' + token.fa_contract + ' - ' + token.token_id)
       })
 
       const submission = axios.post('https://www.radion.fm/api/fingerprint/', formBuffer, {
@@ -136,7 +136,7 @@ module.exports.start = async (config = {}) => {
             throw new Error(result.message)
           }
         }
-        console.log('Processed ' + token.token_id + '\r\n')
+        console.log('Processed ' + token.fa_contract + ' - ' + token.token_id + '\r\n')
       } else {
         throw new Error('Response Code: ' + fingerprintRes.status.toString())
       }
@@ -153,7 +153,7 @@ module.exports.start = async (config = {}) => {
         errors = errors.trim()
       } catch (error) {}
 
-      await fs.promises.writeFile(errorsPath, errors + '\r\n' + token.token_id)
+      await fs.promises.writeFile(errorsPath, errors + '\r\n' + token.fa_contract + ' - ' + token.token_id)
     }
   }
 }
