@@ -102,6 +102,7 @@ module.exports.start = async (config = {}) => {
       form.append('artwork', token.display_uri ? token.display_uri.slice(7) : (token.thumbnail_uri && token.thumbnail_uri.slice(7)))
       form.append('platform', 'OBJKT')
       form.append('blockchain', 'Tezos')
+      form.append('additional', 'Contract Address: ' + token.fa_contract + '\r\nToken ID: ' + token.token_id)
 
       const formBuffer = form.getBuffer()
       const formLength = form.getLengthSync()
