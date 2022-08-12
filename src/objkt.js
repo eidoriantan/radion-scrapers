@@ -5,6 +5,8 @@ const FormData = require('form-data')
 const axios = require('axios').default
 
 const objktEndpoint = 'https://data.objkt.com/v2/graphql'
+const cdnEndpoint = 'https://objkt.eidoriantan.me/media'
+
 async function getTokens (offset = 0, limit = 500) {
   const query = {
     query: `query GetTokens($offset: Int = 0, $limit: Int = 500) {
@@ -93,9 +95,10 @@ module.exports.start = async (config = {}) => {
     if (exists) break
     try {
       const form = new FormData()
+      const artifactUri = token.artifact_uri.slice(7)
       form.append('title', title)
       form.append('artist', artist)
-      form.append('audio', token.artifact_uri.slice(7))
+      form.append('audio', `${cdnEndpoint}/${artifactUri}`)
       form.append('artwork', token.display_uri ? token.display_uri.slice(7) : (token.thumbnail_uri && token.thumbnail_uri.slice(7)))
       form.append('platform', 'OBJKT')
       form.append('blockchain', 'Tezos')
