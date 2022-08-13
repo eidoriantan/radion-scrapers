@@ -96,13 +96,17 @@ module.exports.start = async (config = {}) => {
     try {
       const form = new FormData()
       const artifactUri = token.artifact_uri.slice(7)
+      let artwork = null
+      if (token.display_uri) artwork = token.display_uri.slice(7)
+      else if (token.thumbnail_uri) artwork = token.thumbnail_uri.slice(7)
+
       form.append('title', title)
       form.append('artist', artist)
       form.append('audio', `${cdnEndpoint}/${artifactUri}`)
-      form.append('artwork', token.display_uri ? token.display_uri.slice(7) : (token.thumbnail_uri && token.thumbnail_uri.slice(7)))
       form.append('platform', 'OBJKT')
       form.append('blockchain', 'Tezos')
       form.append('additional', 'Contract Address: ' + token.fa_contract + '\r\nToken ID: ' + token.token_id)
+      if (artwork) form.append('artwork', artwork)
 
       const formBuffer = form.getBuffer()
       const formLength = form.getLengthSync()
