@@ -26,6 +26,7 @@
     "objkt": "node scripts/objkt.js",
     "melos": "node scripts/melos.js",
     "contract": "node scripts/contract.js",
+    "opensea": "node scripts/opensea.js",
     "lint": "standard",
     "postlint": "git log -1 --format=%B | commitlint",
     "pretest": "npm run lint",

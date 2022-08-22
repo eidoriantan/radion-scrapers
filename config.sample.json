@@ -7,6 +7,11 @@
     "timeout": 60000,
     "maximum": 30
   },
+  "opensea": {
+    "timeout": 60000,
+    "limit": 50,
+    "slug": "async-music"
+  },
   "contract": {
     "maximum": 30,
     "network": "mainnet",
