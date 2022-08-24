@@ -20,14 +20,14 @@ module.exports.start = async (config = {}) => {
   const limit = config.limit || 50
   const timeout = config.timeout || 60000
   const slug = config.slug || 'async-music'
+  const apiKey = config.apiKey
   const skippedPath = path.resolve(__dirname, '../data/opensea-' + slug + '-skipped.txt')
   const errorsPath = path.resolve(__dirname, '../data/opensea-' + slug + '-errors.txt')
   const cursorPath = path.resolve(__dirname, '../data/opensea-' + slug + '-lastcursor.txt')
   let cursor = ''
 
-  if (!slug) {
-    throw new Error('Slug is not defined in `config.json`')
-  }
+  if (!slug) throw new Error('Slug is not defined in `config.json`')
+  if (!apiKey) throw new Error('API Key is not defined in `config.json`')
 
   try {
     await fs.promises.access(cursorPath, fs.constants.F_OK)
@@ -46,7 +46,10 @@ module.exports.start = async (config = {}) => {
   tokensQuery.set('limit', limit)
   if (cursor) tokensQuery.set('cursor', cursor)
 
-  const tokensRes = await axios.get(`${openseaEndpoint}/assets?${tokensQuery.toString()}`)
+  const tokensRes = await axios.get(`${openseaEndpoint}/assets?${tokensQuery.toString()}`, {
+    headers: { 'X-API-KEY': apiKey }
+  })
+
   const tokensData = tokensRes.data
   const tokens = tokensData.assets
 

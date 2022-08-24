@@ -10,7 +10,8 @@
   "opensea": {
     "timeout": 60000,
     "limit": 50,
-    "slug": "async-music"
+    "slug": "async-music",
+    "apiKey": "null"
   },
   "contract": {
     "maximum": 30,
