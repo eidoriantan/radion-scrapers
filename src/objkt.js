@@ -4,8 +4,8 @@ const path = require('path')
 const FormData = require('form-data')
 const axios = require('axios').default
 
-const objktEndpoint = 'https://data.objkt.com/v2/graphql'
-const cdnEndpoint = 'https://objkt.eidoriantan.me/media'
+const objktEndpoint = 'https://132.148.77.82:3002/graphql'
+const cdnEndpoint = 'https://132.148.77.82:3002/media'
 
 async function getTokens (offset = 0, limit = 500) {
   const query = {
