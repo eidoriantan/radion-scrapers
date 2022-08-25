@@ -53,7 +53,7 @@ app.get('/status', (req, res) => {
 
     for (let i = 0; i < lines.length; i++) {
       const line = lines[i].match(/(?:[^\s"]+|"[^"]*")+/g)
-      if (line === null || line[0] === 'data:' || line[1] === 'uid') continue
+      if (line === null || line[0] !== 'data:' || line[1] === 'uid') continue
       if (line[4] === 'scripts/objkt.js') statuses.objkt.running = true
     }
 
