@@ -23,10 +23,14 @@
   },
   "scripts": {
     "start": "node index.js",
-    "objkt": "node scripts/objkt.js",
-    "melos": "node scripts/melos.js",
-    "contract": "node scripts/contract.js",
-    "opensea": "node scripts/opensea.js",
+    "objkt:start": "forever start scripts/objkt.js",
+    "objkt:stop": "forever stop scripts/objkt.js",
+    "melos:start": "forever start scripts/melos.js",
+    "melos:stop": "forever stop scripts/melos.js",
+    "contract:start": "forever start scripts/contract.js",
+    "contract:stop": "forever stop scripts/contract.js",
+    "opensea:start": "forever start scripts/opensea.js",
+    "opensea:stop": "forever stop scripts/opensea.js",
     "lint": "standard",
     "postlint": "git log -1 --format=%B | commitlint",
     "pretest": "npm run lint",
@@ -34,6 +38,7 @@
   },
   "dependencies": {
     "axios": "^0.27.2",
+    "forever": "^4.0.3",
     "form-data": "^4.0.0",
     "node-cron": "^3.0.0",
     "uuid": "^8.3.2"
