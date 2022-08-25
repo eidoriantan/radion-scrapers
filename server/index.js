@@ -41,6 +41,7 @@ app.get('/status', (req, res) => {
       return
     }
 
+    const scripts = ['objkt', 'melos']
     const lines = removeANSI(stdout).split('\n')
     const statuses = {
       objkt: {
@@ -56,17 +57,20 @@ app.get('/status', (req, res) => {
     for (let i = 0; i < lines.length; i++) {
       const line = lines[i].match(/(?:[^\s"]+|"[^"]*")+/g)
       if (line === null || line[0] !== 'data:' || line[1] === 'uid') continue
-      if (line[4] === 'scripts/objkt.js') {
-        const uptime = line[8].split(':')
-        const date = new Date()
-        date.setDate(date.getDate() - parseInt(uptime[0]))
-        date.setHours(date.getHours() - parseInt(uptime[1]))
-        date.setMinutes(date.getMinutes() - parseInt(uptime[2]))
-        date.setSeconds(date.getSeconds() - parseInt(uptime[3]))
+      for (let x = 0; x < scripts.length; x++) {
+        const script = scripts[x]
+        if (line[4] === `scripts/${script}.js`) {
+          const uptime = line[8].split(':')
+          const date = new Date()
+          date.setDate(date.getDate() - parseInt(uptime[0]))
+          date.setHours(date.getHours() - parseInt(uptime[1]))
+          date.setMinutes(date.getMinutes() - parseInt(uptime[2]))
+          date.setSeconds(date.getSeconds() - parseInt(uptime[3]))
 
-        const timestamp = Math.floor(date.getTime() / 1000)
-        statuses.objkt.running = true
-        statuses.objkt.lastUpdate = timestamp
+          const timestamp = Math.floor(date.getTime() / 1000)
+          statuses[script].running = true
+          statuses[script].lastUpdate = timestamp
+        }
       }
     }
 
