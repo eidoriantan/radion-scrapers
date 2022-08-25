@@ -44,17 +44,30 @@ app.get('/status', (req, res) => {
     const lines = removeANSI(stdout).split('\n')
     const statuses = {
       objkt: {
-        running: false
+        running: false,
+        lastUpdate: null
       },
       melos: {
-        running: false
+        running: false,
+        lastUpdate: null
       }
     }
 
     for (let i = 0; i < lines.length; i++) {
       const line = lines[i].match(/(?:[^\s"]+|"[^"]*")+/g)
       if (line === null || line[0] !== 'data:' || line[1] === 'uid') continue
-      if (line[4] === 'scripts/objkt.js') statuses.objkt.running = true
+      if (line[4] === 'scripts/objkt.js') {
+        const uptime = line[8].split(':')
+        const date = new Date()
+        date.setDate(date.getDate() - parseInt(uptime[0]))
+        date.setHours(date.getHours() - parseInt(uptime[1]))
+        date.setMinutes(date.getMinutes() - parseInt(uptime[2]))
+        date.setSeconds(date.getSeconds() - parseInt(uptime[3]))
+
+        const timestamp = Math.floor(date.getTime() / 1000)
+        statuses.objkt.running = true
+        statuses.objkt.lastUpdate = timestamp
+      }
     }
 
     res.json({
