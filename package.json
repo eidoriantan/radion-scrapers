@@ -31,6 +31,7 @@
     "contract:stop": "forever stop scripts/contract.js",
     "opensea:start": "forever start scripts/opensea.js",
     "opensea:stop": "forever stop scripts/opensea.js",
+    "server": "forever start server/index.js",
     "lint": "standard",
     "postlint": "git log -1 --format=%B | commitlint",
     "pretest": "npm run lint",
@@ -38,6 +39,7 @@
   },
   "dependencies": {
     "axios": "^0.27.2",
+    "express": "^4.18.1",
     "forever": "^4.0.3",
     "form-data": "^4.0.0",
     "node-cron": "^3.0.0",
