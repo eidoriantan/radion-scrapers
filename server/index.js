@@ -4,6 +4,7 @@ const path = require('path')
 const exec = require('child_process').exec
 const express = require('express')
 const asyncWrap = require('./utils/async-wrap')
+const removeANSI = require('./utils/remove-ansi')
 const app = express()
 
 const port = process.env.PORT || 3001
@@ -29,15 +30,41 @@ if (sslCaPath) {
 
 app.use(express.json())
 
-app.get('/status', asyncWrap(async (req, res) => {
+app.get('/status', (req, res) => {
   const root = path.resolve(__dirname, '../')
-  exec('npx forever list', {
-    cwd: root
-  }, (err, stdout, stderr) => {
-    if (err) console.error(err)
-    console.log(stdout)
+  exec('npx forever list --plain', { cwd: root }, (err, stdout, stderr) => {
+    if (err) {
+      console.error(err)
+      res.status(500).json({
+        success: false,
+        message: err
+      })
+      return
+    }
+
+    const lines = removeANSI(stdout).split('\n')
+    const statuses = {
+      objkt: {
+        running: false
+      },
+      melos: {
+        running: false
+      }
+    }
+
+    for (let i = 0; i < lines.length; i++) {
+      const line = lines[i].match(/(?:[^\s"]+|"[^"]*")+/g)
+      if (line === null || line[0] === 'data:' || line[1] === 'uid') continue
+      if (line[4] === 'scripts/objkt.js') statuses.objkt.running = true
+    }
+
+    res.json({
+      success: true,
+      message: 'No errors',
+      statuses
+    })
   })
-}))
+})
 
 app.use((err, req, res, next) => {
   if (err) {

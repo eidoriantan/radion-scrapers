@@ -31,7 +31,7 @@
     "contract:stop": "forever stop scripts/contract.js",
     "opensea:start": "forever start scripts/opensea.js",
     "opensea:stop": "forever stop scripts/opensea.js",
-    "server": "node server/index.js",
+    "server": "forever start server/index.js",
     "lint": "standard",
     "postlint": "git log -1 --format=%B | commitlint",
     "pretest": "npm run lint",

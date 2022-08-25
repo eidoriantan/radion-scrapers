@@ -1,0 +1,3 @@
+[32minfo[39m:    Forever processes running
+[90mdata[39m:        uid  command       script           forever pid  id logfile                         uptime                   
+[90mdata[39m:    [0] 4IMC /usr/bin/node scripts/objkt.js 29071   4658    /home/oclasus/.forever/4IMC.log 0:0:3:12.474999999999994 
