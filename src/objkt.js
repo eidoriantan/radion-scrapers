@@ -72,10 +72,14 @@ module.exports.start = async (config = {}) => {
     lastToken++
     await fs.promises.writeFile(lastTokenPath, lastToken.toString())
 
-    const holder = token.creators !== null && token.creators.length > 0 ? token.creators[0].holder : null
-    const artist = holder !== null ? holder.alias : ''
     const title = token.name
+    let artist = ''
     let exists = false
+
+    if (token.creators.length > 0) {
+      const creator = token.creators[0]
+      artist = creator.holder && creator.holder.alias ? creator.holder.alias : creator.creator_address
+    }
 
     try {
       const query = new URLSearchParams()
