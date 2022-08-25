@@ -3,7 +3,6 @@ const fs = require('fs')
 const path = require('path')
 const exec = require('child_process').exec
 const express = require('express')
-const asyncWrap = require('./utils/async-wrap')
 const removeANSI = require('./utils/remove-ansi')
 const app = express()
 
