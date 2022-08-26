@@ -124,8 +124,8 @@ module.exports.start = async (config = {}) => {
 
       await fs.promises.writeFile(errorsPath, errors + '\r\n' + contractAddress + ' - ' + tokenId)
     }
-
-    cursor = tokensData.next
-    await fs.promises.writeFile(cursorPath, cursor)
   }
+
+  cursor = tokensData.next
+  await fs.promises.writeFile(cursorPath, cursor)
 }
