@@ -93,7 +93,7 @@ module.exports.start = async (config = {}) => {
       form.append('artist', artist)
       form.append('audio', artifact)
       form.append('platform', 'tune.fm')
-      form.append('blockchain', 'NONE')
+      form.append('blockchain', 'Hedera Hashgraph')
       if (artwork) form.append('artwork', artwork)
 
       const formBuffer = form.getBuffer()
