@@ -85,7 +85,9 @@ module.exports.start = async (config = {}) => {
     const title = token.title
     const artist = token.artistName
     const artifact = token.path
-    const artwork = `${tunefmEndpoint}/${token.artwork.slice(2)}`
+    let artworkPath = token.artwork
+    while (artworkPath[0] === '/') artworkPath = artworkPath.slice(1)
+    const artwork = `${tunefmEndpoint}/${artworkPath}`
 
     try {
       const form = new FormData()
