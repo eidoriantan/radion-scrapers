@@ -64,7 +64,6 @@ app.get('/status', (req, res) => {
       for (let x = 0; x < scripts.length; x++) {
         const script = scripts[x]
         if (line[4] === `scripts/${script}.js`) {
-          statuses[script].running = true
           if (line[8] !== 'STOPPED') {
             const uptime = line[8].split(':')
             const date = new Date()
@@ -74,6 +73,7 @@ app.get('/status', (req, res) => {
             date.setSeconds(date.getSeconds() - parseInt(uptime[3]))
 
             const timestamp = Math.floor(date.getTime() / 1000)
+            statuses[script].running = true
             statuses[script].lastUpdate = timestamp
           }
         }
