@@ -3,18 +3,9 @@ const fs = require('fs')
 const path = require('path')
 const FormData = require('form-data')
 const axios = require('axios').default
+const timeoutAsync = require('./utils/timeout')
 
 const openseaEndpoint = 'https://api.opensea.io/api/v1'
-
-async function timeoutAsync (timeout, callback) {
-  return new Promise((resolve, reject) => {
-    setTimeout(() => {
-      callback()
-      const error = new Error('Timed out')
-      reject(error)
-    }, timeout)
-  })
-}
 
 module.exports.start = async (config = {}) => {
   const limit = config.limit || 50

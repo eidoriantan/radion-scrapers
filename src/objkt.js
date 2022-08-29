@@ -3,6 +3,7 @@ const fs = require('fs')
 const path = require('path')
 const FormData = require('form-data')
 const axios = require('axios').default
+const timeoutAsync = require('./utils/timeout')
 
 const objktEndpoint = 'https://132.148.77.82:3002/graphql'
 const cdnEndpoint = 'https://132.148.77.82:3002/media'
@@ -35,16 +36,6 @@ async function getTokens (offset = 0, limit = 500) {
 
   const response = await axios.post(objktEndpoint, query)
   return response.data.data.token
-}
-
-async function timeoutAsync (timeout, callback) {
-  return new Promise((resolve, reject) => {
-    setTimeout(() => {
-      callback()
-      const error = new Error('Timed out')
-      reject(error)
-    }, timeout)
-  })
 }
 
 module.exports.start = async (config = {}) => {

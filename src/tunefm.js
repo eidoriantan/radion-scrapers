@@ -4,19 +4,10 @@ const path = require('path')
 const FormData = require('form-data')
 const axios = require('axios').default
 const jsdom = require('jsdom')
+const timeoutAsync = require('./utils/timeout')
 
 const { JSDOM } = jsdom
 const tunefmEndpoint = 'https://tune.fm'
-
-async function timeoutAsync (timeout, callback) {
-  return new Promise((resolve, reject) => {
-    setTimeout(() => {
-      callback()
-      const error = new Error('Timed out')
-      reject(error)
-    }, timeout)
-  })
-}
 
 function parseTokenId (html) {
   const dom = new JSDOM(html)

@@ -3,6 +3,7 @@ const fs = require('fs')
 const path = require('path')
 const FormData = require('form-data')
 const axios = require('axios').default
+const timeoutAsync = require('./utils/timeout')
 
 module.exports.start = async (config = {}) => {
   const maximum = config.maximum
@@ -17,16 +18,6 @@ module.exports.start = async (config = {}) => {
   }
 
   return await Promise.all(contracts)
-}
-
-async function timeoutAsync (timeout, callback) {
-  return new Promise((resolve, reject) => {
-    setTimeout(() => {
-      callback()
-      const error = new Error('Timed out')
-      reject(error)
-    }, timeout)
-  })
 }
 
 async function processContract (name, address, network = 'mainnet', limit = 30, timeout = 60000) {
