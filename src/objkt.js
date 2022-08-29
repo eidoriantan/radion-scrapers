@@ -58,7 +58,14 @@ module.exports.start = async (config = {}) => {
   }
 
   console.log('Fetching new tokens from OBJKT Public API...')
-  const tokens = await getTokens(lastToken, limit)
+  let tokens = null
+  try {
+    tokens = await getTokens(lastToken, limit)
+  } catch (error) {
+    console.error(error.response || error.message)
+  }
+
+  if (tokens === null) return
   for (let i = 0; i < tokens.length; i++) {
     const token = tokens[i]
     lastToken++
