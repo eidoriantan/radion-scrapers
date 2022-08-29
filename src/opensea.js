@@ -84,22 +84,21 @@ module.exports.start = async (config = {}) => {
       })
 
       const fingerprintRes = await Promise.race([submission, timeoutPromise])
-      if (fingerprintRes.status === 200) {
-        const result = fingerprintRes.data
-        if (!result.success) {
-          if (result.message === 'Detected similar song') {
-            const title = result.similar.title
-            const artist = result.similar.artist
-            console.error('Token ID: ' + tokenId)
-            console.error('Detected similar song: ' + artist + ' - ' + title + '\r\n')
-          } else {
-            throw new Error(result.message)
-          }
+      if (fingerprintRes === null) throw new Error('Timed out')
+      if (fingerprintRes.status !== 200) throw new Error('Response Code: ' + fingerprintRes.status)
+
+      const result = fingerprintRes.data
+      if (!result.success) {
+        if (result.message === 'Detected similar song') {
+          const title = result.similar.title
+          const artist = result.similar.artist
+          console.error('Token ID: ' + tokenId)
+          console.error('Detected similar song: ' + artist + ' - ' + title + '\r\n')
+        } else {
+          throw new Error(result.message)
         }
-        console.log('Processed ' + contractAddress + ' - ' + tokenId + '\r\n')
-      } else {
-        throw new Error('Response Code: ' + fingerprintRes.status.toString())
       }
+      console.log('Processed ' + contractAddress + ' - ' + tokenId + '\r\n')
     } catch (error) {
       console.error('Token Name: ' + title)
       console.error('Contract Address: ' + contractAddress)
