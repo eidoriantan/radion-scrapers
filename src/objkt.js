@@ -46,6 +46,7 @@ module.exports.start = async (config = {}) => {
   const lastTokenPath = path.resolve(__dirname, '../data/objkt-new-lasttoken.txt')
   let lastToken = null
 
+  await timeoutAsync(1000)
   try {
     await fs.promises.access(lastTokenPath, fs.constants.F_OK)
     lastToken = await fs.promises.readFile(lastTokenPath, { encoding: 'utf-8' })
