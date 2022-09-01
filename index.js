@@ -2,10 +2,11 @@
 const cron = require('node-cron')
 
 const config = require('./config.json')
+const contract = require('./src/contract')
 const objkt = require('./src/objkt')
 const melos = require('./src/melos')
 const opensea = require('./src/opensea')
-const contract = require('./src/contract')
+const tunefm = require('./src/tunefm')
 
 const interval = config.rewardInterval.minute + ' ' +
   config.rewardInterval.hour + ' ' +
@@ -13,10 +14,11 @@ const interval = config.rewardInterval.minute + ' ' +
   config.rewardInterval.month + ' ' +
   config.rewardInterval.dayOfWeek
 
+let contractTask = null
 let objktTask = null
 let melosTask = null
 let openseaTask = null
-let contractTask = null
+let tunefmTask = null
 
 if (!process.env.NO_CONTRACT) {
   contractTask = cron.schedule(interval, async () => {
@@ -42,11 +44,18 @@ if (!process.env.NO_OPENSEA) {
   })
 }
 
+if (!process.env.NO_TUNEFM) {
+  tunefmTask = cron.schedule(interval, async () => {
+    return await tunefm.start(config.tunefm)
+  })
+}
+
 process.on('SIGINT', () => {
+  if (contractTask) contractTask.stop()
   if (objktTask) objktTask.stop()
   if (melosTask) melosTask.stop()
   if (openseaTask) openseaTask.stop()
-  if (contractTask) contractTask.stop()
+  if (tunefmTask) tunefmTask.stop()
 })
 
 process.on('uncaughtException', error => {
