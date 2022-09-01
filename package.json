@@ -31,6 +31,8 @@
     "contract:stop": "forever stop scripts/contract.js",
     "opensea:start": "forever start scripts/opensea.js",
     "opensea:stop": "forever stop scripts/opensea.js",
+    "tunefm:start": "forever start scripts/tunefm.js",
+    "tunefm:stop": "forever stop scripts/tunefm.js",
     "server": "forever start server/index.js",
     "lint": "standard",
     "postlint": "git log -1 --format=%B | commitlint",
