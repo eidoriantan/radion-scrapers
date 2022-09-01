@@ -66,7 +66,11 @@ module.exports.start = async (config = {}) => {
     if (tokenId > latest) {
       latest = tokenId
       await fs.promises.writeFile(latestPath, latest.toString())
-    } else if (tokenId === latest) return
+    } else if (tokenId === latest) {
+      offset = 0
+      await fs.promises.writeFile(offsetPath, '0')
+      return
+    }
 
     const tokenRes = await axios.get(`${tunefmEndpoint}/api/v0/song~${tokenId}`, {
       headers: { Cookie: `sessionid=${sessionid}` }
