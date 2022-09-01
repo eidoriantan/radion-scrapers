@@ -7,6 +7,7 @@ const objkt = require('./src/objkt')
 const melos = require('./src/melos')
 const opensea = require('./src/opensea')
 const tunefm = require('./src/tunefm')
+const soundxyz = require('./src/soundxyz')
 
 const interval = config.rewardInterval.minute + ' ' +
   config.rewardInterval.hour + ' ' +
@@ -19,6 +20,7 @@ let objktTask = null
 let melosTask = null
 let openseaTask = null
 let tunefmTask = null
+let soundxyzTask = null
 
 if (!process.env.NO_CONTRACT) {
   contractTask = cron.schedule(interval, async () => {
@@ -50,12 +52,19 @@ if (!process.env.NO_TUNEFM) {
   })
 }
 
+if (!process.env.NO_SOUNDXYZ) {
+  soundxyzTask = cron.schedule(interval, async () => {
+    return await soundxyz.start(config.soundxyz)
+  })
+}
+
 process.on('SIGINT', () => {
   if (contractTask) contractTask.stop()
   if (objktTask) objktTask.stop()
   if (melosTask) melosTask.stop()
   if (openseaTask) openseaTask.stop()
   if (tunefmTask) tunefmTask.stop()
+  if (soundxyzTask) soundxyzTask.stop()
 })
 
 process.on('uncaughtException', error => {

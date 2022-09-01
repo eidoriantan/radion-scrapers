@@ -33,6 +33,8 @@
     "opensea:stop": "forever stop scripts/opensea.js",
     "tunefm:start": "forever start scripts/tunefm.js",
     "tunefm:stop": "forever stop scripts/tunefm.js",
+    "soundxyz:start": "forever start scripts/soundxyz.js",
+    "soundxyz:stop": "forever stop scripts/soundxyz.js",
     "server": "forever start server/index.js",
     "lint": "standard",
     "postlint": "git log -1 --format=%B | commitlint",
