@@ -41,11 +41,11 @@ module.exports.start = async (config = {}) => {
   const skippedPath = path.resolve(__dirname, '../data/soundxyz-skipped.txt')
   const errorsPath = path.resolve(__dirname, '../data/soundxyz-errors.txt')
   const cursorPath = path.resolve(__dirname, '../data/soundxyz-lastcursor.txt')
-  let cursor = 0
+  let cursor = null
 
   try {
     await fs.promises.access(cursorPath, fs.constants.F_OK)
-    cursor = parseInt(await fs.promises.readFile(cursorPath, { encoding: 'utf-8' }))
+    cursor = await fs.promises.readFile(cursorPath, { encoding: 'utf-8' })
   } catch (error) {
     console.log('sound.xyz data file does not exist. Creating one...')
     cursor = null
