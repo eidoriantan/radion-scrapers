@@ -74,7 +74,7 @@ module.exports.start = async (config = {}) => {
 
   for (let i = 0; i < tokens.length; i++) {
     const token = tokens[i]
-    const cursor = parseInt(lastCursor) + i
+    const cursor = lastCursor !== null ? parseInt(lastCursor) + i : i
     await fs.promises.writeFile(lastCursorPath, cursor.toString())
 
     try {
