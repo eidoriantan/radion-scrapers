@@ -71,6 +71,7 @@ module.exports.start = async (config = {}) => {
 
   const response = tokensRes.data.data
   const tokens = response.esMusicList.nodes
+  if (response.esMusicList.cursor === null) return
 
   for (let i = 0; i < tokens.length; i++) {
     const token = tokens[i]
