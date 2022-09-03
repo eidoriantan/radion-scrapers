@@ -41,9 +41,9 @@ async function getTokens (offset = 0, limit = 500) {
 module.exports.start = async (config = {}) => {
   const limit = config.limit || 100
   const timeout = config.timeout || 60000
-  const skippedPath = path.resolve(__dirname, '../data/objkt-new-skipped.txt')
-  const errorsPath = path.resolve(__dirname, '../data/objkt-new-errors.txt')
-  const lastTokenPath = path.resolve(__dirname, '../data/objkt-new-lasttoken.txt')
+  const skippedPath = path.resolve(__dirname, '../data/objkt-skipped.txt')
+  const errorsPath = path.resolve(__dirname, '../data/objkt-errors.txt')
+  const lastTokenPath = path.resolve(__dirname, '../data/objkt-lasttoken.txt')
   let lastToken = null
 
   try {
