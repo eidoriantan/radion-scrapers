@@ -16,7 +16,7 @@
     "email": "eidoriantan@gmail.com",
     "url": "https://eidoriantan.me"
   },
-  "main": "index.js",
+  "main": "server/index.js",
   "repository": {
     "type": "git",
     "url": "git+https://github.com/eidoriantan/radion-scrapers.git"
