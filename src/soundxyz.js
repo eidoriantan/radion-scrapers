@@ -51,7 +51,7 @@ module.exports.start = async (config = {}) => {
     cursor = null
   }
 
-  console.log('Fetching new tokens from tune.fm Private API...')
+  console.log('Fetching new tokens from sound.xyz Private API...')
   const data = {
     query: `query DiscoverAllMintedReleases($pagination: CursorConnectionArgs!, $filter: MintedReleasesCursorFilterArgs) {
       pastMintedReleases(pagination: $pagination, filter: $filter) {
