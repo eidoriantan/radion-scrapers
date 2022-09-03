@@ -9,11 +9,11 @@ const opensea = require('./src/opensea')
 const tunefm = require('./src/tunefm')
 const soundxyz = require('./src/soundxyz')
 
-const interval = config.rewardInterval.minute + ' ' +
-  config.rewardInterval.hour + ' ' +
-  config.rewardInterval.dayOfMonth + ' ' +
-  config.rewardInterval.month + ' ' +
-  config.rewardInterval.dayOfWeek
+const interval = config.interval.minute + ' ' +
+  config.interval.hour + ' ' +
+  config.interval.dayOfMonth + ' ' +
+  config.interval.month + ' ' +
+  config.interval.dayOfWeek
 
 let contractTask = null
 let objktTask = null

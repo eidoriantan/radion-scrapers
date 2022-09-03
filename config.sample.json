@@ -30,7 +30,7 @@
       "radion": "KT1VvhVUBWUrfMpVky6b7PuCVNMTuxRMEKrj"
     }
   },
-  "rewardInterval": {
+  "interval": {
     "minute": "*",
     "hour": "*/1",
     "dayOfMonth": "*",
