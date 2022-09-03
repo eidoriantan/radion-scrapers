@@ -55,6 +55,10 @@ app.get('/status', (req, res) => {
       tunefm: {
         running: false,
         lastUpdate: null
+      },
+      soundxyz: {
+        running: false,
+        lastUpdate: null
       }
     }
 
