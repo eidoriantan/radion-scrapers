@@ -22,37 +22,37 @@ let openseaTask = null
 let tunefmTask = null
 let soundxyzTask = null
 
-if (!process.env.NO_CONTRACT) {
+if (process.env.RUN_CONTRACT) {
   contractTask = cron.schedule(interval, async () => {
     return await contract.start(config.contract)
   })
 }
 
-if (!process.env.NO_OBJKT) {
+if (process.env.RUN_OBJKT) {
   objktTask = cron.schedule(interval, async () => {
     return await objkt.start(config.objkt)
   })
 }
 
-if (!process.env.NO_MELOS) {
+if (process.env.RUN_MELOS) {
   melosTask = cron.schedule(interval, async () => {
     return await melos.start(config.melos)
   })
 }
 
-if (!process.env.NO_OPENSEA) {
+if (process.env.RUN_OPENSEA) {
   openseaTask = cron.schedule(interval, async () => {
     return await opensea.start(config.opensea)
   })
 }
 
-if (!process.env.NO_TUNEFM) {
+if (process.env.RUN_TUNEFM) {
   tunefmTask = cron.schedule(interval, async () => {
     return await tunefm.start(config.tunefm)
   })
 }
 
-if (!process.env.NO_SOUNDXYZ) {
+if (process.env.RUN_SOUNDXYZ) {
   soundxyzTask = cron.schedule(interval, async () => {
     return await soundxyz.start(config.soundxyz)
   })
