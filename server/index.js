@@ -41,7 +41,7 @@ app.get('/status', (req, res) => {
       return
     }
 
-    const scripts = ['objkt', 'melos', 'tunefm']
+    const scripts = ['objkt', 'melos', 'tunefm', 'soundxyz']
     const lines = removeANSI(stdout).split('\n')
     const statuses = {
       objkt: {
