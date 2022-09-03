@@ -19,137 +19,26 @@ module.exports.start = async (config = {}) => {
     lastCursor = lastCursor.trim()
   } catch (error) {
     console.log('MELOS Studio data file does not exist. Creating one...')
-    lastCursor = '0'
-    await fs.promises.writeFile(lastCursorPath, lastCursor)
+    lastCursor = null
   }
 
   console.log('Fetching new tokens from melos.studio API...')
   const data = {
-    query: `query searchMusicProducts($query: QueryMusicTokenInput!, $cursor: String, $limit: Int) {
-      searchMusicProducts(query: $query, cursor: $cursor, limit: $limit) {
+    query: `query EsMusicList($query: ESMusicListInput, $cursor: String, $limit: Int) {
+      esMusicList(query: $query, cursor: $cursor, limit: $limit) {
         nodes {
           tokenId
-          name
           image
-          source
-          smallImage
-          sample
-          description
-          largeImage
-          collect {
-            contract {
-              chainId
-              __typename
-            }
-            name
-            id
-            description
-            imageUrl
-            isBlindbox
-            __typename
-          }
-          isMysterybox
-          itemId
-          contract {
-            chainId
-            __typename
-          }
-          prioritizeOrder {
-            currentPrice
-            usdPrice
-            paymentToken {
-              symbol
-              decimals
-              chainId
-              usdPrice
-              __typename
-            }
-            __typename
-          }
-          fixedPriceOrder {
-            listingTime
-            expirationTime
-            saleKind
-            currentPrice
-            usdPrice
-            paymentToken {
-              symbol
-              decimals
-              chainId
-              usdPrice
-              __typename
-            }
-            __typename
-          }
-          englishOrder {
-            listingTime
-            expirationTime
-            currentPrice
-            usdPrice
-            paymentToken {
-              symbol
-              decimals
-              chainId
-              usdPrice
-              __typename
-            }
-            __typename
-          }
-          dutchOrder {
-            listingTime
-            expirationTime
-            currentPrice
-            usdPrice
-            paymentToken {
-              symbol
-              decimals
-              chainId
-              usdPrice
-              __typename
-            }
-            __typename
-          }
-          offerOrder {
-            listingTime
-            expirationTime
-            currentPrice
-            usdPrice
-            paymentToken {
-              symbol
-              decimals
-              chainId
-              usdPrice
-              __typename
-            }
-            __typename
-          }
           creator {
-            avator
             name
             id
             __typename
           }
-          product {
-            id
-            name
-            description
-            image
-            price
-            chainId
-            items {
-              name
-              description
-              image
-              rarity
-              itemId
-              __typename
-            }
-            secondaryMarketStartTime
-            __typename
-          }
-          __typename
+          sample
+          name
         }
         cursor
+        total
         __typename
       }
     }`,
@@ -157,14 +46,18 @@ module.exports.start = async (config = {}) => {
       cursor: lastCursor,
       limit: maximum,
       query: {
+        album: null,
         chainId: null,
-        inDescendingOrder: false,
-        isMysterybox: false,
-        isNotMyProfile: true,
-        keywords: '',
+        inDescendingOrder: 'asc',
+        keywords: null,
         kind: null,
         musicianTags: null,
+        priceRange: {
+          maxPrice: null,
+          minPrice: null
+        },
         sortBy: 'listingTime',
+        style: null,
         symbol: null
       }
     }
@@ -177,7 +70,7 @@ module.exports.start = async (config = {}) => {
   }
 
   const response = tokensRes.data.data
-  const tokens = response.searchMusicProducts.nodes
+  const tokens = response.esMusicList.nodes
 
   for (let i = 0; i < tokens.length; i++) {
     const token = tokens[i]
@@ -203,7 +96,7 @@ module.exports.start = async (config = {}) => {
           skipped = skipped.trim()
         } catch (error) {}
 
-        await fs.promises.writeFile(skippedPath, skipped + '\r\n' + token.token_id)
+        await fs.promises.writeFile(skippedPath, skipped + '\r\n' + token.tokenId)
       })
 
       const submission = axios.post('https://www.radion.fm/api/fingerprint/', formBuffer, {
@@ -231,7 +124,7 @@ module.exports.start = async (config = {}) => {
       console.log('Processed ' + token.name + '\r\n')
     } catch (error) {
       console.error('Token Name: ' + token.name)
-      console.error('Token ID: ' + token.token_id)
+      console.error('Token ID: ' + token.tokenId)
       console.error(error.message + '\r\n')
 
       let errors = ''
@@ -241,7 +134,7 @@ module.exports.start = async (config = {}) => {
         errors = errors.trim()
       } catch (error) {}
 
-      await fs.promises.writeFile(errorsPath, errors + '\r\n' + token.token_id)
+      await fs.promises.writeFile(errorsPath, errors + '\r\n' + token.tokenId)
     }
   }
 }
