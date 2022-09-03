@@ -6,7 +6,7 @@ const axios = require('axios').default
 const timeoutAsync = require('./utils/timeout')
 
 module.exports.start = async (config = {}) => {
-  const maximum = config.maximum
+  const maximum = config.maximum || 20
   const timeout = config.timeout || 60000
   const skippedPath = path.resolve(__dirname, '../data/melos-skipped.txt')
   const errorsPath = path.resolve(__dirname, '../data/melos-errors.txt')
