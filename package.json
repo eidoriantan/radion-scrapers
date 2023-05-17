@@ -22,7 +22,6 @@
     "url": "git+https://github.com/eidoriantan/radion-scrapers.git"
   },
   "scripts": {
-    "start": "node index.js",
     "objkt:start": "forever start scripts/objkt.js",
     "objkt:stop": "forever stop scripts/objkt.js",
     "melos:start": "forever start scripts/melos.js",
